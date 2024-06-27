@@ -22,21 +22,35 @@ app.set('views', path.join(__dirname, 'views'))
 
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
-app.use((req, res, next) => {
+const verifyPassword = ((req, res, next) => {
     const { password } = req.query;
     if (password === 'chickenNuggets')
         next();
     res.send("Sorry ypu need a password!!!!");
 })
+app.get("/secret", verifyPassword, (req, res) => {
+    res.send("My secret is : sometime ")
+})
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.get('/', (req, res) => {
     // res.send("Hello form yelp");
     res.render('home')
 })
-app.get("/secret", (req, res) => {
-    res.send("My secret is : sometime ")
-})
+
+
 
 app.get('/campgrounds', async (req, res) => {
     const campgrounds = await Campground.find({});
