@@ -36,18 +36,6 @@ app.get("/secret", verifyPassword, (req, res) => {
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 app.get('/', (req, res) => {
     // res.send("Hello form yelp");
     res.render('home')
@@ -64,8 +52,9 @@ app.get('/campgrounds/new', (req, res) => {
 })
 app.post('/campgrounds', async (req, res) => {
     // res.send(req.body.campground);
-    const { title, location } = req.body.campground;
-    const campground = new Campground({ location: location, title: title });
+    const { title, location, image, description, price } = req.body.campground;
+
+    const campground = new Campground({ location: location, title: title, image: image, description: description, price: price });
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
 })
