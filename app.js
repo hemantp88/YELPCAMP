@@ -29,7 +29,8 @@ const verifyPassword = ((req, res, next) => {
     const { password } = req.query;
     if (password === 'chickenNuggets')
         next();
-    res.send("Sorry ypu need a password!!!!");
+    // res.send("Sorry ypu need a password!!!!");
+    throw new Error("Password Required");
 })
 app.get("/secret", verifyPassword, (req, res) => {
     res.send("My secret is : sometime ")
@@ -79,6 +80,9 @@ app.delete('/campgrounds/:id', async (req, res) => {
     res.redirect('/campgrounds');
 
 })
+// app.get('/error', (req, res) => {
+//     chicken.fly();
+// })
 
 
 app.use((req, res) => {
