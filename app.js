@@ -51,13 +51,18 @@ app.get('/campgrounds', async (req, res) => {
 app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
 })
-app.post('/campgrounds', async (req, res) => {
+app.post('/campgrounds', async (req, res, next) => {
     // res.send(req.body.campground);
-    const { title, location, image, description, price } = req.body.campground;
+    try {
+        const { title, location, image, description, price } = req.body.campground;
+        const campground = new Campground({ location: location, title: title, image: image, description: description, price: price });
+        await campground.save();
+        res.redirect(`/campgrounds/${campground._id}`);
+    }
+    catch (e) {
+        next(e);
 
-    const campground = new Campground({ location: location, title: title, image: image, description: description, price: price });
-    await campground.save();
-    res.redirect(`/campgrounds/${campground._id}`);
+    }
 })
 app.get('/campgrounds/:id', async (req, res,) => {
     const campground = await Campground.findById(req.params.id);
@@ -84,6 +89,9 @@ app.delete('/campgrounds/:id', async (req, res) => {
 //     chicken.fly();
 // })
 
+app.use((err, req, res, next) => {
+    res.send("oh boy error");
+})
 
 app.use((req, res) => {
     res.status(404).send("Not found");
