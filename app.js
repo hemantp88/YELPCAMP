@@ -91,15 +91,15 @@ app.all('*', (req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-    const { statusCode = 500, message = 'something went wrong '
-    } = err;
-    res.status(statusCode).send(message);
+    const { statusCode = 500 } = err;
+    if (!err.meassge) err.meassge = "oh! no something went wrong!";
+    res.status(statusCode).render('error', { err })
     // res.send("oh boy error");
 })
 
-app.use((req, res) => {
-    res.status(404).send("Not found");
-})
+// app.use((req, res) => {
+//     res.status(404).send("Not found");
+// })
 app.listen(3000, () => {
     console.log("listening on port 3000");
 })
