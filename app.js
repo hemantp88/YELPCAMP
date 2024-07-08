@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const catchAsync = require("./utils/catchAsync");
 const methodOverride = require('method-override')
 const Campground = require('./models/campground');
+const ExpressError = require("./utils/ExpressError");
 const ejsMate = require('ejs-mate');
 
 
@@ -54,7 +55,7 @@ app.get('/campgrounds/new', (req, res) => {
 })
 app.post('/campgrounds', catchAsync(async (req, res, next) => {
     // res.send(req.body.campground);
-
+    if (!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);
     const { title, location, image, description, price } = req.body.campground;
     const campground = new Campground({ location: location, title: title, image: image, description: description, price: price });
     await campground.save();
@@ -84,9 +85,16 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
 // app.get('/error', (req, res) => {
 //     chicken.fly();
 // })
+app.all('*', (req, res, next) => {
+    // res.send("404!!!!");
+    next(new ExpressError("Pgae Not found", 404));
+})
 
 app.use((err, req, res, next) => {
-    res.send("oh boy error");
+    const { statusCode = 500, message = 'something went wrong '
+    } = err;
+    res.status(statusCode).send(message);
+    // res.send("oh boy error");
 })
 
 app.use((req, res) => {
