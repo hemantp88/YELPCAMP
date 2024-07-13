@@ -8,6 +8,8 @@ const ExpressError = require("./utils/ExpressError");
 const ejsMate = require('ejs-mate');
 const Joi = require('joi')
 const { campgroundSchema } = require('./schemas.js');
+const campground = require("./models/campground");
+const Review = require('./models/review.js')
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
 const db = mongoose.connection;
@@ -102,9 +104,16 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     res.redirect('/campgrounds');
 
 }))
-// app.get('/error', (req, res) => {
-//     chicken.fly();
-// })
+
+app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+}))
+
 app.all('*', (req, res, next) => {
     // res.send("404!!!!");
     next(new ExpressError("Pgae Not found", 404));
