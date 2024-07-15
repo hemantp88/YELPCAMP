@@ -6,6 +6,8 @@ const ExpressError = require("./utils/ExpressError");
 const ejsMate = require('ejs-mate');
 const campgrounds = require('./routes/campgrounds.js');
 const reviews = require('./routes/reviews.js');
+const flash = require('connect-flash');
+
 
 const session = require('express-session');
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
@@ -36,6 +38,7 @@ const sessionConfig = {
     }
 }
 app.use(session(sessionConfig))
+app.use(flash());
 
 
 
@@ -56,6 +59,12 @@ app.get('/', (req, res) => {
     res.render('home')
 })
 
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+
+})
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
 

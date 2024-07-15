@@ -9,7 +9,6 @@ const { campgroundSchema } = require('../schemas.js');
 const validateCampground = (req, res, next) => {
 
     const { error } = campgroundSchema.validate(req.body);
-    // console.log(result);
     if (error) {
         const msg = error.details.map(el => el.message).join(',');
         throw new ExpressError(msg, 400);
@@ -29,29 +28,26 @@ router.get('/new', (req, res) => {
 
 //creating new campground
 router.post('/', validateCampground, catchAsync(async (req, res, next) => {
-    // res.send(req.body.campground);
-    // if (!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);
 
     const { title, location, image, description, price } = req.body.campground;
     const campground = new Campground({ location: location, title: title, image: image, description: description, price: price });
     await campground.save();
+    req.flash('success', 'Successfully made a new campground');
     res.redirect(`/campgrounds/${campground._id}`);
 }))
 router.get('/:id', catchAsync(async (req, res,) => {
     const campground = await Campground.findById(req.params.id).populate('reviews');
-    // console.log(campground)
     res.render('campgrounds/show', { campground });
 }))
 router.get('/:id/edit', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     res.render('campgrounds/edit', { campground });
 }))
-//updatting campground
 router.put('/:id', validateCampground, catchAsync(async (req, res) => {
-    // res.send("IT worked");
+
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground })
-    // console.log("goggommf")
+
     res.redirect(`/campgrounds/${campground._id}`);
 }))
 router.delete('/:id', catchAsync(async (req, res) => {
