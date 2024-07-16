@@ -7,9 +7,12 @@ const ejsMate = require('ejs-mate');
 const campgrounds = require('./routes/campgrounds.js');
 const reviews = require('./routes/reviews.js');
 const flash = require('connect-flash');
-
-
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user.js');
 const session = require('express-session');
+
+
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection Error"));
@@ -41,6 +44,12 @@ app.use(session(sessionConfig))
 app.use(flash());
 
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());//storage user
+passport.deserializeUser(User.deserializeUser());//unstorage user       
+
 
 app.engine('ejs', ejsMate)
 
@@ -49,6 +58,14 @@ const verifyPassword = ((req, res, next) => {
     if (password === 'chickenNuggets')
         next();
     throw new Error("Password Required");
+})
+
+
+
+app.get('/fakeUser', async (req, res) => {
+    const user = new User({ email: 'hp@gmail.com', username: 'hp' });
+    const newUser = await User.register(user, 'Hattu@03')
+    res.send(newUser);
 })
 app.get("/secret", verifyPassword, (req, res) => {
     res.send("My secret is : sometime ")
