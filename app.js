@@ -77,6 +77,7 @@ app.get('/', (req, res) => {
 })
 
 app.use((req, res, next) => {
+    console.log(req.session)
     app.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
