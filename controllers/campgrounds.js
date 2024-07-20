@@ -1,17 +1,9 @@
 const Campground = require('../models/campground');
 const { cloudinary } = require('../cloudinary');
-const mapToken = process.env.MAP_BOX_TOKEN;
-// const maptilersdk = require('@maptiler/sdk');
-// maptilersdk.config.apiKey = mapToken;
+const mapToken = process.env.MAP_TOKEN;
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const geoCoder = mbxGeocoding({ accessToken: mapToken })
 
-// const maptilersdk = require('@maptiler/sdk');
-const maptilersdk = require('@maptiler/sdk');
-const { GeocodingControl } = require("@maptiler/geocoding-control/maptilersdk");
-// const require("@maptiler/sdk/dist/maptiler-sdk.css");
-// const require("@maptiler/geocoding-control/style.css");
-
-
-maptilersdk.config.apiKey = mapToken;
 
 
 
@@ -29,14 +21,14 @@ module.exports.renderNewForm = (req, res) => {
     res.render('campgrounds/new');
 }
 module.exports.createCampground = async (req, res, next) => {
-    const result = await maptilersdk.geocoding.forward({
-        query: "paris",
+    const result = await geoCoder.forwardGeocode({
+        query: req.body.campground.location,
         limit: 1
-    });
-
-    console.log(result);
-    const { title, location, description, price } = req.body.campground;
-    const campground = new Campground({ location: location, title: title, description: description, price: price });
+    }).send();
+    // console.log(result);
+    // const { title, location, description, price } = req.body.campground;
+    const campground = new Campground(req.body.campground);
+    campground.geometry = result.body.features[0].geometry;
     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }))
     campground.author = req.user._id;
     await campground.save();
