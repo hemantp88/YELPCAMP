@@ -1,7 +1,6 @@
 if (process.env.NODE_ENV !== "production") {
     require("dotenv").config();
 }
-// console.log(process.env.secret cloudnary)
 const express = require("express")
 const path = require('path');
 const mongoose = require('mongoose');
@@ -16,6 +15,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user.js');
 const session = require('express-session');
+const mongoSanitize = require('express-mongo-sanitize');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
 const db = mongoose.connection;
@@ -34,6 +34,13 @@ app.set('views', path.join(__dirname, 'views'))
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(mongoSanitize());
+app.use(
+    mongoSanitize({
+      allowDots: true,
+      replaceWith: '_',
+    }),
+  );
 const sessionConfig = {
     secret: 'this should be better secret',
     resave: false,
@@ -46,6 +53,7 @@ const sessionConfig = {
 }
 app.use(session(sessionConfig))
 app.use(flash());
+
 
 
 app.use(passport.initialize());
