@@ -9,6 +9,9 @@ const reviewSchema = new Schema({
         ref: 'User'
     }
 });
+module.exports = mongoose.model('Review', reviewSchema)
 
-module.exports = mongoose.model("Review", reviewSchema);
 
+
+// body: "The palce is good"
+// rating:4/5
