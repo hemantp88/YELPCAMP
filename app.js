@@ -1,7 +1,7 @@
 if (process.env.NODE_ENV !== "production") {
     require("dotenv").config();
 }
-const dbUrl=process.env.DB_URL;
+const dbUrl=process.env.DB_URL||'mongodb://0.0.0.0:27017/yelp-camp';
 const express = require("express")
 const path = require('path');
 const mongoose = require('mongoose');
