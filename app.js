@@ -1,6 +1,7 @@
 if (process.env.NODE_ENV !== "production") {
     require("dotenv").config();
 }
+const dbUrl=process.env.DB_URL||'mongodb://localhost:27017/yelp-camp';
 const express = require("express")
 const path = require('path');
 const mongoose = require('mongoose');
@@ -16,6 +17,11 @@ const LocalStrategy = require('passport-local');
 const User = require('./models/user.js');
 const session = require('express-session');
 const mongoSanitize = require('express-mongo-sanitize');
+const MongoStore = require('connect-mongo');
+const helmet=require('helmet');
+const secret = process.env.SECRET||'this should be better secret';
+const port= process.env.PORT||3000;
+
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp');
 const db = mongoose.connection;
@@ -34,23 +40,87 @@ app.set('views', path.join(__dirname, 'views'))
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, 'public')))
-app.use(mongoSanitize());
+app.use(mongoSanitize({
+    replaceWith: '_'
+}))
+  app.use(helmet());
+  
+
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://cdn.jsdelivr.net",
+];
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+];
+const connectSrcUrls = [
+    "https://api.mapbox.com/",
+    "https://a.tiles.mapbox.com/",
+    "https://b.tiles.mapbox.com/",
+    "https://events.mapbox.com/",
+];
+const fontSrcUrls = [];
 app.use(
-    mongoSanitize({
-      allowDots: true,
-      replaceWith: '_',
-    }),
-  );
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/dfe7zgjf4/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
+                "https://images.unsplash.com/",
+                
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
+
+
+
+
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: secret
+    }
+});
+
+store.on('error',function(e){
+    console.log("Session store error",e);
+})
 const sessionConfig = {
-    secret: 'this should be better secret',
+    store:store,
+    name:'session',
+    secret: secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
+        // secure:true,
         expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }
+
+
+
 app.use(session(sessionConfig))
 app.use(flash());
 
@@ -111,6 +181,7 @@ app.use((err, req, res, next) => {
 
 })
 
-app.listen(3000, () => {
-    console.log("listening on port 3000");
+app.listen(port, () => {
+    console.log(`listening on port ${port}`);
 })
+
