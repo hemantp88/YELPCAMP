@@ -42,5 +42,6 @@
     </ul>
     <script>
         const mapToken = '<%- process.env.MAP_TOKEN %>';
+        const camp = {features: <%- JSON.stringify(campgrounds) %>};
     </script>
     <script src="/javascripts/clusterMap.js"></script>
