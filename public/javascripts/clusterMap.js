@@ -2,7 +2,7 @@ mapboxgl.accessToken = mapToken;
 const map = new mapboxgl.Map({
     container: 'map',
     // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-    style: 'mapbox://styles/mapbox/dark-v11',
+    style: 'mapbox://styles/mapbox/light-v11',
     center: [-103.5917, 40.6699],
     zoom: 3
 });
@@ -36,19 +36,19 @@ map.on('load', () => {
                 'step',
                 ['get', 'point_count'],
                 '#51bbd6',
-                100,
+                10,
                 '#f1f075',
-                750,
+                30,
                 '#f28cb1'
             ],
             'circle-radius': [
                 'step',
                 ['get', 'point_count'],
+                15,
+                10,
                 20,
-                100,
                 30,
-                750,
-                40
+                25  
             ]
         }
     });
@@ -72,8 +72,8 @@ map.on('load', () => {
         filter: ['!', ['has', 'point_count']],
         paint: {
             'circle-color': '#11b4da',
-            'circle-radius': 4,
-            'circle-stroke-width': 1,
+            'circle-radius': 7,
+            'circle-stroke-width': 4,
             'circle-stroke-color': '#fff'
         }
     });
@@ -103,9 +103,10 @@ map.on('load', () => {
     // description HTML from its properties.
     map.on('click', 'unclustered-point', (e) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
-        const mag = e.features[0].properties.mag;
-        const tsunami =
-            e.features[0].properties.tsunami === 1 ? 'yes' : 'no';
+        // const mag = e.features[0].properties.mag;
+        const {popUpMarkp} =e.features[0].properties;
+        // const tsunami =
+        //     e.features[0].properties.tsunami === 1 ? 'yes' : 'no';
 
         // Ensure that if the map is zoomed out such that
         // multiple copies of the feature are visible, the
@@ -119,7 +120,7 @@ map.on('load', () => {
         new mapboxgl.Popup()
             .setLngLat(coordinates)
             .setHTML(
-                `magnitude: ${mag}<br>Was there a tsunami?: ${tsunami}`
+                popUpMarkp
             )
             .addTo(map);
     });
