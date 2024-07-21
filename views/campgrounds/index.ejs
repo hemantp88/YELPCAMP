@@ -11,7 +11,7 @@
                 <img class="img-fluid" alt="" src="<%=campground.images[0].url%>">
                 <% }else {%>
                 <img class="img-fluid" alt=""
-                    src="https://res-console.cloudinary.com/dfe7zgjf4/media_explorer_thumbnails/3f285d3aa38371a659b41c2f22e5409e/detailed">
+                    src="https://res.cloudinary.com/douqbebwk/image/upload/v1600103881/YelpCamp/lz8jjv2gyynjil7lswf4.png">
                 <% } %>
             </div>
             <div class="col-md-8">
@@ -30,12 +30,8 @@
     <% }%>
 </div>
 <script>
-    const mapToken = `<%-process.env.MAP_BOX_TOKEN%>`;
-    
+    const mapToken = '<%-process.env.MAPBOX_TOKEN%>';
     const campgrounds = { features: <%- JSON.stringify(campgrounds) %>}
-
 </script>
 
 <script src="/javascripts/clusterMap.js"></script>
-
-    
